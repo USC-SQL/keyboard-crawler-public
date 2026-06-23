@@ -9,6 +9,7 @@ import edu.usc.sql.krawler.buildedges.intrastate.CrawlActionNonMutationResult;
 import edu.usc.sql.krawler.buildedges.intrastate.threads.CrawlActionEdgeProcessorPool;
 import edu.usc.sql.krawler.buildgraphs.GetCrawlActionsForUIState;
 import edu.usc.sql.krawler.buildgraphs.Hop;
+import edu.usc.sql.krawler.buildgraphs.HopForwardDeeper;
 import edu.usc.sql.krawler.buildgraphs.UIState;
 import edu.usc.sql.krawler.buildnodes.ExtractNodesJavaScript;
 import edu.usc.sql.krawler.buildnodes.GetPageEntryElement;
@@ -23,7 +24,6 @@ import lombok.NoArgsConstructor;
 import org.openqa.selenium.WebDriver;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor
 public class Construct_KrawlerNew_Keys {
@@ -108,7 +108,7 @@ public class Construct_KrawlerNew_Keys {
     Set<CrawlAction> hopCrawlAction = hop.getHopCrawlAction();
 
     Set<CrawlActionMutationResult> hopCrawlActionMutationResult = new HashSet<>();
-    CrawlActionProcessorPool cappool = new CrawlActionProcessorPool(hopCrawlAction, 2, url, proxyPort);
+    CrawlActionProcessorPool cappool = new CrawlActionProcessorPool(hopCrawlAction, numberOfConcurrentWebdrivers, url, proxyPort);
     cappool.start();
     if (cappool.isFinishedProcessing()) {
       hopCrawlActionMutationResult.addAll(cappool.getCrawlActionMutationResults());
@@ -180,7 +180,7 @@ public class Construct_KrawlerNew_Keys {
 
 
 
-
+/*
     Hop hop0 = new Hop(0);
     hop0.setHopCrawlAction(getInitialDeeperCrawlActions(initialUIState));
 
@@ -195,6 +195,7 @@ public class Construct_KrawlerNew_Keys {
 
       hopi.setHopCrawlActionMutationResult(hopiCrawlActionMutationResult);
       processCrawlActionResults(hopi);
+*/
 
 
 
@@ -204,38 +205,32 @@ public class Construct_KrawlerNew_Keys {
 
 
 
+    Hop hop0 = new Hop(0);
+    hop0.setHopCrawlAction(getInitialDeeperCrawlActions(initialUIState));
 
-//    Hop hop0 = new Hop(0);
-//    hop0.setHopCrawlAction(getInitialDeeperCrawlActions(nodesXpaths));
-//
-//
-//    Hop hopCurrent = hop0;
-//
-//
-//    for (int i = 0; i < maxNumberOfHopsInCrawlDepth; i++) {
-//      Hop hopi = hopCurrent;
-//      // crawl the hop0 actions to get the crawl action results (those that caused a UI mutation, not page unload or same UI)
-//      Set<CrawlActionMutationResult> hopiCrawlActionMutationResult = getCrawlActionResults(hopi);
-//
-//      hopi.setHopCrawlActionMutationResult(hopiCrawlActionMutationResult);
-//      processCrawlActionResults(hopi);
-//
-//      // set up next hop based on previous hop data
-//      // create the crawl actions for next hop based on the crawl action results from current hop
-//      // *while ignored already visited state*
-//      Hop hopiPlus1 = HopForwardDeeper.process(hopi);
-//      System.out.println("taco " + i + " " + hopi.getHop() + " " + hopiPlus1.getHop());
-//      System.out.println(hopiPlus1.getHop());
-//      hopiPlus1.setHopCrawlAction(hopiPlus1.getHopCrawlAction());
-//      hopCurrent = hopiPlus1;
-//
-//    }
-//
-//    System.out.println("states");
-//    Set<UIState> states = Results.getVisitedStates();
-//    for (UIState state : states) {
-//      System.out.println(state);
-//    }
+
+    Hop hopCurrent = hop0;
+
+
+    for (int i = 0; i < maxNumberOfHopsInCrawlDepth; i++) {
+      Hop hopi = hopCurrent;
+      // crawl the hop0 actions to get the crawl action results (those that caused a UI mutation, not page unload or same UI)
+      Set<CrawlActionMutationResult> hopiCrawlActionMutationResult = getCrawlActionResults(hopi);
+
+      hopi.setHopCrawlActionMutationResult(hopiCrawlActionMutationResult);
+      processCrawlActionResults(hopi);
+
+      // set up next hop based on previous hop data
+      // create the crawl actions for next hop based on the crawl action results from current hop
+      // *while ignored already visited state*
+      Hop hopiPlus1 = HopForwardDeeper.process(hopi);
+      System.out.println("taco " + i + " " + hopi.getHop() + " " + hopiPlus1.getHop());
+      System.out.println(hopiPlus1.getHop());
+      hopiPlus1.setHopCrawlAction(hopiPlus1.getHopCrawlAction());
+      hopCurrent = hopiPlus1;
+
+    }
+
 
 
 
@@ -250,6 +245,8 @@ public class Construct_KrawlerNew_Keys {
 //    keysToCrawl.add("SPACE");
 
 
+
+    System.out.println("states");
     //Set<CrawlAction> actionsToCrawlForEdges = new HashSet<>();
     Set<UIState> states = Results.getVisitedStates();
     System.out.println(states.size());
@@ -299,7 +296,7 @@ public class Construct_KrawlerNew_Keys {
     for (UIState state : states) {
       Set<CrawlAction> actionsToCrawlForEdgesForUIState = new HashSet<>();
 
-/*
+
       keysToCrawl.remove("TAB");
       keysToCrawl.remove("SHIFTTAB");
       keysToCrawl.remove("ENTER");
@@ -325,7 +322,7 @@ public class Construct_KrawlerNew_Keys {
 //      scanner.nextLine();
 
 
-
+/*
 */
       UIGraph uiState = new UIGraph();
       Set<UIGraphNode> nodes = new HashSet<>();
@@ -341,7 +338,7 @@ public class Construct_KrawlerNew_Keys {
 
       // next do other keys
       Set<CrawlActionNonMutationResult> edgeCrawlActionNonMutationResult = new HashSet<>();
-      CrawlActionEdgeProcessorPool cappool_edge = new CrawlActionEdgeProcessorPool(actionsToCrawlForEdgesForUIState, 2, url, proxyPort);
+      CrawlActionEdgeProcessorPool cappool_edge = new CrawlActionEdgeProcessorPool(actionsToCrawlForEdgesForUIState, numberOfConcurrentWebdrivers, url, proxyPort);
       cappool_edge.start();
       if (cappool_edge.isFinishedProcessing()) {
         edgeCrawlActionNonMutationResult.addAll(cappool_edge.getCrawlActionNonMutationResults());
@@ -374,6 +371,23 @@ public class Construct_KrawlerNew_Keys {
       uiState.setNodes(nodes);
       uiState.setEdges(edges);
 
+      for(UIGraphEdge e: edges){
+        System.out.println(e);
+      }
+      //System.exit(0);
+
+      UIGraphState uiGraphState = new UIGraphState(uiState);
+      uiGraphState.setParentUniversalStateID(state.getParentStateID());
+      uiGraphState.setUniversalStateID(state.getStateID());
+
+      uiGraphState.setNextStateTransitionList(state.getNextStateTransitionList());
+
+      UIGraphNode v_entry = new UIGraphNode(state.getV_entry_xpath());
+      UIGraphNode v_entry_successor = new UIGraphNode(state.getV_entry_successor_xpath());
+      uiGraphState.setV_entry(v_entry);
+      uiGraphState.setV_entry_successor(v_entry_successor);
+
+      Results.addToExploredDOMStateSet_size(uiGraphState);
 
 
 /*
