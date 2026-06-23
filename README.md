@@ -47,7 +47,6 @@ keyboard-crawler-public/
 ├── download_mitmproxy.sh
 ├── download_firefox.sh
 ├── download_chrome.sh
-├── scripts/
 └── src/main/java/edu/usc/sql/krawler/
     └── RunApproachKrawler.java
 ```
