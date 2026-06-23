@@ -47,20 +47,38 @@ public class Utils {
 //  public static Map<String, ElementWrapper> xpathToElementMap = new HashMap<>();
 
   private static void configureFirefoxBinary(FirefoxOptions options) {
-    File firefoxExecutable = findFirefoxExecutable();
+    List<String> candidates = Arrays.asList(
+            System.getenv("FIREFOX_BINARY"),
+            System.getProperty("firefox.binary"),
 
-    if (firefoxExecutable == null || !firefoxExecutable.exists()) {
-      throw new RuntimeException(
-              "Firefox binary not found. Install Firefox or place Firefox.app in one of these locations:\n"
-                      + "  /Applications/Firefox.app\n"
-                      + "  ~/Applications/Firefox.app\n"
-                      + "  ./browser-binaries/Firefox.app\n"
-                      + "  ./src/main/resources/firefox/Firefox.app"
-      );
+            // Linux
+            "/usr/bin/firefox",
+            "/usr/local/bin/firefox",
+            "/snap/bin/firefox",
+            "/usr/bin/firefox-esr",
+
+            // macOS
+            "/Applications/Firefox.app/Contents/MacOS/firefox",
+            System.getProperty("user.home") + "/Applications/Firefox.app/Contents/MacOS/firefox",
+            "./browser-binaries/Firefox.app/Contents/MacOS/firefox",
+            "./src/main/resources/firefox/Firefox.app/Contents/MacOS/firefox"
+    );
+
+    for (String path : candidates) {
+      if (path != null && !path.trim().isEmpty()) {
+        File file = new File(path);
+        if (file.exists() && file.canExecute()) {
+          options.setBinary(file.getAbsolutePath());
+          return;
+        }
+      }
     }
 
-    System.out.println("Utils: using Firefox binary: " + firefoxExecutable.getAbsolutePath());
-    options.setBinary(firefoxExecutable.getAbsolutePath());
+    throw new RuntimeException(
+            "Firefox binary not found. Install Firefox or set FIREFOX_BINARY, for example:\n" +
+                    "  export FIREFOX_BINARY=/usr/bin/firefox\n" +
+                    "Checked Linux and macOS Firefox locations."
+    );
   }
 
   private static File findFirefoxExecutable() {
