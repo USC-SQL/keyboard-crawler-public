@@ -1,5 +1,5 @@
 run_single_subject===netflix
-list_of_subjects_to_run===/Users/christinechaniotaki/IdeaProjects/SQL/subjects.csv
+list_of_subjects_to_run===/path/to/subjects-run.csv
 
 headless_mode===false
 num_of_concurrent_webdrivers===2
@@ -8,10 +8,7 @@ mitmproxy_folder_name===mitmproxy-5.3.0
 browser_type===chrome
 proxy_port===9998
 
-read_google_sheet===false
-url_to_main_subject_mapping_google_sheet===
+subject_mapping_csv===/path/to/subjects.csv
+cached_subjects_location===/path/to/cached-subjects/
 
-subject_mapping_csv===/Users/paulchiou/Desktop/krawler_test/subjects.csv
-cached_subjects_location===/Users/paulchiou/Desktop/krawler_test/
-
-project_output_dir===/Users/paulchiou/Desktop/krawler_test/
+project_output_dir===/path/to/output-directory/

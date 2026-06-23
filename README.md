@@ -1,118 +1,245 @@
-# Keyboard Krawler for Web Application
+# Keyboard Krawler
 
-Using this tool, you can create a keyboard navigation graph for a website.
+Krawler is a research tool for crawling web applications through keyboard interaction and generating a keyboard navigation graph model, i.e., the Keyboard Experience Representation (KER).
+
+The repository is centered on:
+
+```text
+src/main/java/edu/usc/sql/krawler/RunApproachKrawler.java
+```
+
+Krawler uses Selenium WebDriver, browser replay through mitmproxy, and configurable keyboard actions to explore keyboard-reachable UI states and transitions.
+
+## What Keyboard Krawler does
+
+Krawler:
+
+* opens a target web page in a configured browser;
+* routes browser traffic through mitmproxy;
+* replays cached web content when available;
+* explores the page using keyboard navigation and interaction keys;
+* records discovered UI states and keyboard-triggered transitions;
+* writes the resulting keyboard navigation graph as JSON.
 
 ## Requirements
 
-Java Version = 11.0.15+
+* Java JDK 8 or newer
+* Maven
+* A configured `run_config` file
+* A subject-mapping CSV file
+* Cached website content or a configured subject URL
 
-Maven Version = 3.9.4+
+Browser and mitmproxy setup are handled through the repository setup flow. The normal setup path is:
+
+```bash
+mvn clean install
+```
+
+This compiles the project and runs the repository setup scripts configured in Maven.
+
+## Repository layout
+
+```text
+keyboard-crawler-public/
+├── README.md
+├── pom.xml
+├── run_config_template
+├── download_mitmproxy.sh
+├── download_firefox.sh
+├── download_chrome.sh
+├── scripts/
+└── src/main/java/edu/usc/sql/krawler/
+    └── RunApproachKrawler.java
+```
+
+## Setup
+
+Clone the repository:
+
+```bash
+git clone git@github.com:USC-SQL/keyboard-crawler-public.git
+cd keyboard-crawler-public
+```
+
+Build the project:
+
+```bash
+mvn clean install
+```
+
+This is the intended setup step. Do not manually edit browser-driver paths unless you are debugging a local environment issue.
 
 ## Configuration
 
-After downloading the version you should fix the configurations of the project.
+Copy the template config file:
 
-On `run_config_template` file you will find the template of the config.
+```bash
+cp run_config_template run_config
+```
 
-*Make* a copy and name it `run_config` and fill out the paths with your paths.
+Then edit `run_config` for your local experiment.
 
-In order to create the KNFG graph you need to download the cache version of the website.
+Example:
 
-In order to do it you should... //TODO
+```text
+run_single_subject===netflix
+list_of_subjects_to_run===/path/to/subjects-run.csv
+headless_mode===true
+num_of_concurrent_webdrivers===2
+mitmproxy_folder_name===mitmproxy-5.3.0
+browser_type===chrome
+proxy_port===9998
+subject_mapping_csv===/path/to/subjects.csv
+cached_subjects_location===/path/to/cached-subjects/
+project_output_dir===/path/to/output-directory/
+```
 
-You may use an already cached website from the folder `cachedSubjects`.
+## Important config fields
 
-## Selection of Broswer
+| Field                                      | Meaning                                                                                  |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| `run_single_subject`                       | Name of one subject to crawl. This should match a subject name in `subject_mapping_csv`. |
+| `list_of_subjects_to_run`                  | CSV containing subject names to crawl. Used when running multiple subjects.              |
+| `headless_mode`                            | `true` to run the browser headlessly; `false` to show the browser window.                |
+| `num_of_concurrent_webdrivers`             | Number of concurrent WebDriver instances used by the crawler.                            |
+| `mitmproxy_folder_name`                    | Name of the mitmproxy folder under `src/main/resources`.                                 |
+| `browser_type`                             | Browser used by the crawler. Supported public options are `chrome` and `firefox`.        |
+| `proxy_port`                               | Starting proxy port used by mitmproxy.                                                   |
+| `subject_mapping_csv`                      | Local CSV mapping subject names to URLs.                                                 |
+| `cached_subjects_location`                 | Directory where cached web page content file is stored.                                        |
+| `project_output_dir`                       | Directory where crawler output is written.                                               |
 
-With the krawler you can use Firefox, Chrome, Safari, and Edge.
+## Browser selection
 
-If you don't have chrome or firefox, we are donwloading.
+Krawler supports browser-based crawling through Selenium WebDriver.
 
-**Unfortunately, Safari doesn't work with cached websites using proxy.**
+Choose the browser in `run_config`:
 
-To select the browser that you want you need to set up the "browser_type" it in run_config file. 
+```text
+browser_type===chrome
+```
 
-If you check the template you have the following options: chrome, firefox, edge, safari.
+or:
 
-Please be carefull because is **case sensitive**
+```text
+browser_type===firefox
+```
 
-### Chrome and Firefox
+Chrome and Firefox are the primary supported browsers for the public repository.
 
-**WARNING!!** If you dont have Chrome or Firefox you can uncomment the scripts on pom.xml to install them.
+The repository includes setup scripts for browser-related setup:
 
-### Safari
+```text
+download_chrome.sh
+download_firefox.sh
+```
 
-Before you run the Safari, do the following:
+The normal public workflow is still:
 
-1. Open Safari
-2. Go to Safari > Settings in the menu bar.
-3. Click on the 'Advanced' tab.
-4. Check the box next to "Show features for web developers".
-5. Now you see “develop” option is on the MacOS menu 
-6. Select develop ⁃ Select “Developer settings…” 
-7. Check “Allow remote automation” 
-8. Now you can run your tests against safari
+```bash
+mvn clean install
+```
 
-**Unfortunately, Safari doesn't work with cached websites using proxy.**
+Then choose the browser through `browser_type`.
 
-### Edge
+### Headless mode
 
-If you want to use edge on Linux or Mac, you should download it first. 
-We do not support auto download. 
+For debugging, where you want to watch the browser, use:
 
-## Build the Project
+```text
+headless_mode===false
+```
 
-To build the project you should run `mvn clean install`. Once you will do this, firefox, mitmproxy and other driver will be download it if you dont have it. 
+otherwise
 
-**WARNING!!** If you faced an issue with gecko driver and firefox check the following:
-Delete your geckodriver from you cache and let the program download it
+```text
+headless_mode===true
+```
 
-**WARNING!!** For **Windows** users, you should have sh in your PATH. To do that, an easy way is to add Git and then add it to your path. 
+## Subject mapping CSV
 
-## Run the project
+The subject-mapping CSV maps each subject name to the URL that should be crawled.
 
-We have four different versions that you may run,
+Example:
 
-[RunApproach.java](src%2Fmain%2Fjava%2Fedu%2Fusc%2FRunApproach.java): Is the simplested and faster version.
-Using this version you will have the simplest version of the Keyboard navigation. Only the node and edges for the different UI States.
+```csv
+netflix,https://www.netflix.com/login
+```
 
-[RunApproachKDF.java](src%2Fmain%2Fjava%2Fedu%2Fusc%2FRunApproachKDF.java):
+The subject name should match the value used in `run_single_subject`.
 
-[RunApproachKFFG.java](src%2Fmain%2Fjava%2Fedu%2Fusc%2FRunApproachKFFG.java):
+For example:
 
-[RunApproachKRFG.java](src%2Fmain%2Fjava%2Fedu%2Fusc%2FRunApproachKRFG.java):
+```text
+run_single_subject===netflix
+```
 
-## Key selection
+should correspond to a row whose subject name is `netflix`.
 
-On run_config there is an attribute nav_keys. Here you can select the keys that you want the Krawler to use. By default we have all the keys.
+## Cached subjects
 
-## How to cache a website
+Krawler uses mitmproxy to replay cached websites.
 
-1. Add the website name and corresponding URL to your spreadsheet that contains your subjects. 
-2. Update the file path that you want to save your subjects on run_config (save_cached_websites_path)
-3. Update your config file to have the new website be your selected subject. 
-This will cause a new browser window to open that loads the website. 
-You must wait until the website is fully loaded before closing the window, or else the cache may be incomplete. 
-4. **Note** that the mitm cache is continuously running the entire time a webpage is open. 
-This means that if a given webpage contains infinite content, then it will continue to cache that information. 
-I share this because (at least in the past) the size of these mitm caches can grow to be quite large on complex websites, 
-which significantly impacts the runtime of downstream tasks (e.g., running the KAF approach). 
-5. Another thing to **note** is that mitm will only cache what is available to it. 
-An example is that if there exists a button that opens a pop-up dialog, the mitm cache will only save the button's
-functionality if you press the button while caching. 
-With this in mind, the best practice is to **interact** with as much of the web page as possible, 
-but avoid infinite/unnecessary content when caching subject web pages. 
-6. Once all of this has been done, clode the program from your IDE (e.g., on Intelij the red button)
-and a cache of the website will be saved in the place that you specified in the config file.
+Cached subject data should be stored under the directory configured by:
 
-If you want also to check that your website has been cached successfully, you may run the [LoadPageWithProxy.java](src%2Fmain%2Fjava%2Fedu%2Fusc%2FLoadPageWithProxy.java)
-and check the result of the page. 
+```text
+cached_subjects_location
+```
 
-**WARNING** if you try a second time to cache the same website and the file has zero bytes, be sure that before running the file you have closed the 9998 port. 
+For example, if:
 
+```text
+cached_subjects_location===/path/to/cached-subjects/
+run_single_subject===netflix
+```
 
-## Run subjects
+then the crawler expects the cached subject data to be associated with:
 
-In order to run a webpage, you need to create a csv file similar to [subjects-run.csv](src%2Fmain%2Fresources%2Fsubjects-run.csv) and give the path to the run_config on list_of_subjects_to_run.
+```text
+/path/to/cached-subjects/netflix
+```
 
-Then you can run the program and it would read the rows one-by-one to crawlr each webpage. 
+When creating a cache, interact with the parts of the web page that should be available during replay. mitmproxy can only replay content and behavior that was captured during caching.
+
+Avoid unnecessary infinite scrolling, autoplaying content, or unrelated dynamic content when building caches, because large caches can significantly slow later crawling runs.
+
+## Running the crawler
+
+After setup and configuration, run:
+
+```text
+edu.usc.sql.krawler.RunApproachKrawler
+```
+
+In IntelliJ IDEA:
+
+1. Open the repository as a Maven project.
+2. Run `mvn clean install`.
+3. Copy `run_config_template` to `run_config`.
+4. Edit `run_config`.
+5. Open `RunApproachKrawler.java`.
+6. Run the `main` method.
+
+## Output
+
+Krawler writes the generated keyboard navigation graph under:
+
+```text
+project_output_dir/output/KERKrawler/<subject-name>/KER.json
+```
+
+Example:
+
+```text
+/path/to/output-directory/output/KERKrawler/netflix/KER.json
+```
+
+## Keyboard actions
+
+Krawler explores pages using configured keyboard actions. The key configuration is controlled through the project config and source code. The default configuration is intended to cover common keyboard navigation and activation behavior.
+
+Typical keyboard actions include navigation keys such as `Tab` and `Shift+Tab`, activation keys such as `Enter` and `Space`, and other supported keys used by the crawler implementation.
+
+## Citation
+
+If you use Krawler in research, please cite the corresponding Keyboard Krawler publication.
