@@ -5,14 +5,11 @@ import edu.usc.sql.krawler.buildedges.interstate.CrawlActionMutationResult;
 import lombok.Getter;
 import org.openqa.selenium.WebDriver;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CrawlActionProcessorPool {
   @Getter
@@ -48,11 +45,10 @@ public class CrawlActionProcessorPool {
 
   public CrawlActionProcessorPool(Set actionsToCrawl, int numberOfConcurrentThreads, String url, int proxyPort) {
     this.actionsToCrawl = actionsToCrawl;
-    this.crawlActionMutationResults = new HashSet<>();
-
+    this.crawlActionMutationResults = ConcurrentHashMap.newKeySet();
     this.numberOfConcurrentThreads = numberOfConcurrentThreads;
 
-    this.inducedWebDrivers = new ArrayList<>();
+    this.inducedWebDrivers = Collections.synchronizedList(new ArrayList<>());
 
     this.url = url;
     this.proxyPort = proxyPort;

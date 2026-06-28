@@ -12,7 +12,8 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
+import java.util.Collections;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CrawlActionEdgeProcessorPool {
   @Getter
@@ -48,11 +49,10 @@ public class CrawlActionEdgeProcessorPool {
 
   public CrawlActionEdgeProcessorPool(Set actionsToCrawl, int numberOfConcurrentThreads, String url, int proxyPort) {
     this.actionsToCrawl = actionsToCrawl;
-    this.crawlActionNonMutationResults = new HashSet<>();
+    this.crawlActionNonMutationResults = ConcurrentHashMap.newKeySet();
+    this.inducedWebDrivers = Collections.synchronizedList(new ArrayList<>());
 
     this.numberOfConcurrentThreads = numberOfConcurrentThreads;
-
-    this.inducedWebDrivers = new ArrayList<>();
 
     this.url = url;
     this.proxyPort = proxyPort;
