@@ -27,7 +27,7 @@ public class RunApproachKrawler {
 
 //    HashMap<String, String> subjectsToRunList = prepareData();
 //    for (String subjectUniqueName : subjectsToRunList.keySet()) {
-    List<String> subjectsToRunList = prepareData2();
+    List<String> subjectsToRunList = prepareSubjects();
 
     for (String subjectUniqueName : subjectsToRunList) {
       String subjectOutputDir =
@@ -51,7 +51,7 @@ public class RunApproachKrawler {
         long timeElapsed = finish - start;
         System.out.println("timeElapsed: " + timeElapsed);
 
-        System.out.println("RunApproachKRFG: Done");
+        System.out.println("RunApproachKrawler: Done");
 
         completedSuccessfully = true;
 
@@ -85,7 +85,7 @@ public class RunApproachKrawler {
       }
     }
 
-    System.out.println("RunApproachKNFG: Reached end of Krawler");
+    System.out.println("RunApproachKrawler: Reached end of Krawler");
     //System.exit(0);
   }
 
@@ -133,26 +133,25 @@ public class RunApproachKrawler {
         }
       }
 
-      System.out.println("RunApproachKNFG: Finished building KER for size viewport");
+      System.out.println("RunApproachKrawler: Finished building KER for size viewport");
     }
   }
 
   public static void write(String subjectOutputDir, String SUBJECT_NAME) {
-    //// get all built reflow KNFG ui states
+    //// get all built reflow KER ui states
     Set<UIGraphState> res = Results.getExploredDOMStateSet_size();
     System.out.println("RunApproach:Total number of explored size KER state: " + res.size());
 
     //// write all built ui states as KER JSON
     WriteUIGraphToJSON w = new WriteUIGraphToJSON(
             subjectOutputDir + "KER" + ".json",
-            new ArrayList<UIGraphState>(res),
-            "KER"
+            new ArrayList<UIGraphState>(res)
     );
 
     w.writeUIGraphOutput();
   }
 
-  public static List<String> prepareData2() {
+  public static List<String> prepareSubjects() {
     //Config.saveSubjectMappingFromGoogleSheetToLocal();
     Config.addSubjectsObjects(); // setup subject objects
 
